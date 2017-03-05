@@ -39,10 +39,18 @@ app.post('/webhook/', function (req, res) {
             if (text === 'Generic') {
                 sendGenericMessage(sender)
                 continue
+            } else if (text === 'location') {
+                askForLocation(sender);
+                continue;
             }
+
             sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200))
+        } else if(event.message && event.message.attachments) {
+            const location = event.message.attachments[0];
+
+            sendTextMessage(sender, "Location in JSON: " + JSON.stringify(location));
         }
-        console.log(JSON.stringify(event));
+
         if (event.postback) {
             let text = JSON.stringify(event.postback)
             sendTextMessage(sender, "Postback received: "+text.substring(0, 200), token)
@@ -51,6 +59,33 @@ app.post('/webhook/', function (req, res) {
     }
     res.sendStatus(200)
 })
+
+function askForLocation(sender) {
+    let locationReply = {
+        "text":"Please share your location:",
+        "quick_replies":[
+            {
+                "content_type":"location",
+            }
+        ]
+    };
+
+    request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token:token},
+        method: 'POST',
+        json: {
+            recipient: {id:sender},
+            message: locationReply,
+        }
+    }, function(error, response, body) {
+        if (error) {
+            console.log('Error sending messages: ', error)
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error)
+        }
+    })
+}
 
 function sendGenericMessage(sender) {
     let messageData = {
@@ -61,11 +96,11 @@ function sendGenericMessage(sender) {
                 "elements": [{
                     "title": "First card",
                     "subtitle": "Element #1 of an hscroll",
-                    "image_url": "http://messengerdemo.parseapp.com/img/rift.png",
+                    "image_url": "http://maxpixel.freegreatpicture.com/static/photo/1x/Nature-Apes-Monkeys-Animals-Cute-Small-Babies-768641.jpg",
                     "buttons": [{
                         "type": "web_url",
-                        "url": "https://www.messenger.com",
-                        "title": "web url"
+                        "url": "https://www.zalando.de",
+                        "title": "Zalando"
                     }, {
                         "type": "postback",
                         "title": "Postback",
@@ -74,7 +109,7 @@ function sendGenericMessage(sender) {
                 }, {
                     "title": "Second card",
                     "subtitle": "Element #2 of an hscroll",
-                    "image_url": "http://messengerdemo.parseapp.com/img/gearvr.png",
+                    "image_url": "https://cdn.pixabay.com/photo/2013/10/17/20/59/horse-197199_960_720.jpg",
                     "buttons": [{
                         "type": "postback",
                         "title": "Postback",
