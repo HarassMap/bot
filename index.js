@@ -3,62 +3,98 @@
 const VERIFY_TOKEN = 'catch-me-if-you-can';
 const token = process.env.FB_PAGE_ACCESS_TOKEN;
 
-const express = require('express')
-const bodyParser = require('body-parser')
-const request = require('request')
-const app = express()
+const express = require('express');
+const bodyParser = require('body-parser');
+const request = require('request');
+const app = express();
 
-app.set('port', (process.env.PORT || 5000))
+const MESSAGES = require('./src/utils/messages');
+const { mainMenu } = require('./src/components/');
+const Request = require('./src/utils/request');
+
+app.set('port', (process.env.PORT || 5000));
 
 // Process application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({extended: false}))
+app.use(bodyParser.urlencoded({extended: false}));
 
 // Process application/json
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 // Index route
 app.get('/', function (req, res) {
     res.send('Hello world, I am a chat bot')
-})
+});
 
 // for Facebook verification
 app.get('/webhook/', function (req, res) {
     if (req.query['hub.verify_token'] === VERIFY_TOKEN) {
-        res.send(req.query['hub.challenge'])
+        res.send(req.query['hub.challenge']);
     }
-    res.send('Error, wrong token')
-})
+    res.send('Error, wrong token');
+});
 
+function handlePostBack(event) {
+    const sender = event.sender.id;
+    const payload = event.postback.payload;
+
+    switch (payload) {
+        case MESSAGES.GET_STARTED.id: {
+            mainMenu(sender);
+            break;
+        }
+        case MESSAGES.REPORT_HARASS_INCIDENT.id: {
+            /*
+            Request.postRequest(Request.URLS.FB_MESSAGES, {
+                recipient: { id: sender },
+                message: {
+                    text: MESSAGES.PLEASE_GIVE_US_MORE_DETAILS.message
+                }
+            });
+            /*/
+            Request.postRequest(Request.URLS.FB_MESSAGES, {
+                recipient: { id: sender },
+                message: {
+                    text: MESSAGES.WHERE_DID_THE_INCIDENT_HAPPEN.message,
+                    quick_replies: [{ 'content_type': 'location' }]
+                }
+            });
+            //*/
+            break;
+        }
+        case MESSAGES.SHOW_HARASS_INCIDENTS.id: {
+            break;
+        }
+    }
+}
 app.post('/webhook/', function (req, res) {
-    let messaging_events = req.body.entry[0].messaging
+    let messaging_events = req.body.entry[0].messaging;
+
     for (let i = 0; i < messaging_events.length; i++) {
-        let event = req.body.entry[0].messaging[i]
-        let sender = event.sender.id
+        let event = messaging_events[i];
+        let sender = event.sender.id;
+
         if (event.message && event.message.text) {
-            let text = event.message.text
+            let text = event.message.text;
             if (text === 'Generic') {
-                sendGenericMessage(sender)
+                sendGenericMessage(sender);
                 continue
             } else if (text === 'location') {
                 askForLocation(sender);
                 continue;
             }
 
-            sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200))
-        } else if(event.message && event.message.attachments) {
+            sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
+        } else if (event.message && event.message.attachments) {
             const location = event.message.attachments[0];
 
             sendTextMessage(sender, "Location in JSON: " + JSON.stringify(location));
-        }
 
-        if (event.postback) {
-            let text = JSON.stringify(event.postback)
-            sendTextMessage(sender, "Postback received: "+text.substring(0, 200), token)
-            continue
+        } else if (event.postback && event.postback.payload) {
+            handlePostBack(event);
         }
     }
-    res.sendStatus(200)
-})
+    res.sendStatus(200);
+});
 
 function askForLocation(sender) {
     let locationReply = {
