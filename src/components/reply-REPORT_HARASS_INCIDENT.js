@@ -28,4 +28,4 @@ module.exports = (sender) => {
         recipient: { id: sender },
         message
     });
-}
+};
