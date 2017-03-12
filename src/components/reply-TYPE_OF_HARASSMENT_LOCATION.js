@@ -3,22 +3,22 @@ const MESSAGES = require('../utils/messages');
 
 module.exports = (sender) => {
     const message = {
-        text: MESSAGES.KIND_OF_HARASSMENT.message,
+        text: MESSAGES.TYPE_OF_HARASSMENT_LOCATION.message,
         quick_replies: [
             {
                 content_type: 'text',
-                title: MESSAGES.FACIAL_EXPRESSION.message,
-                payload: MESSAGES.FACIAL_EXPRESSION.id
+                title: MESSAGES.STREET.message,
+                payload: MESSAGES.STREET.id
             },
             {
                 content_type: 'text',
-                title: MESSAGES.SEXUAL_INVITES.message,
-                payload: MESSAGES.SEXUAL_INVITES.id
+                title: MESSAGES.WORKPLACE.message,
+                payload: MESSAGES.WORKPLACE.id
             },
             {
                 content_type: 'text',
-                title: MESSAGES.SEXUAL_PHOTOS.message,
-                payload: MESSAGES.SEXUAL_PHOTOS.id
+                title: MESSAGES.SCHOOL_OR_UNIVERSITY.message,
+                payload: MESSAGES.SCHOOL_OR_UNIVERSITY.id
             }
         ]
     };

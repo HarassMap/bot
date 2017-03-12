@@ -2,6 +2,7 @@
 
 const VERIFY_TOKEN = 'catch-me-if-you-can';
 const token = process.env.FB_PAGE_ACCESS_TOKEN;
+const PAGE_ID = '1365749950157719';
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -9,18 +10,13 @@ const request = require('request');
 const app = express();
 
 const MESSAGES = require('./src/utils/messages');
-const { mainMenu } = require('./src/components/');
-const Request = require('./src/utils/request');
+const components = require('./src/components/');
+const { ScenarioFactory } = require('./src/components/scenario');
 
 app.set('port', (process.env.PORT || 5000));
-
-// Process application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({extended: false}));
-
-// Process application/json
 app.use(bodyParser.json());
 
-// Index route
 app.get('/', function (req, res) {
     res.send('Hello world, I am a chat bot')
 });
@@ -33,32 +29,44 @@ app.get('/webhook/', function (req, res) {
     res.send('Error, wrong token');
 });
 
+const echo = (sender) => sendTextMessage(sender, 'Echo');
+
+const userScenario = {};
+
+function getCurrentUserReply(senderId) {
+    const currentStep = userScenario[senderId].current().id;
+
+    if (components[currentStep]) {
+        return components[currentStep];
+    }
+
+    console.log(userScenario[senderId].toString());
+
+    return echo;
+}
+
 function handlePostBack(event) {
     const sender = event.sender.id;
     const payload = event.postback.payload;
 
     switch (payload) {
         case MESSAGES.GET_STARTED.id: {
-            mainMenu(sender);
+
+            userScenario[sender] = ScenarioFactory.get();
+            userScenario[sender].next();
+
+            const reply = getCurrentUserReply(sender);
+
+            reply(sender);
             break;
         }
         case MESSAGES.REPORT_HARASS_INCIDENT.id: {
-            /*
-            Request.postRequest(Request.URLS.FB_MESSAGES, {
-                recipient: { id: sender },
-                message: {
-                    text: MESSAGES.PLEASE_GIVE_US_MORE_DETAILS.message
-                }
-            });
-            /*/
-            Request.postRequest(Request.URLS.FB_MESSAGES, {
-                recipient: { id: sender },
-                message: {
-                    text: MESSAGES.WHERE_DID_THE_INCIDENT_HAPPEN.message,
-                    quick_replies: [{ 'content_type': 'location' }]
-                }
-            });
-            //*/
+            userScenario[sender].next();
+
+            const reply = getCurrentUserReply(sender);
+
+            reply(sender);
+
             break;
         }
         case MESSAGES.SHOW_HARASS_INCIDENTS.id: {
@@ -73,23 +81,49 @@ app.post('/webhook/', function (req, res) {
         let event = messaging_events[i];
         let sender = event.sender.id;
 
+        if (sender === PAGE_ID) {
+            continue;
+        }
+
+        console.log('Sender ID: %s', sender);
+
         if (event.message && event.message.text) {
             let text = event.message.text;
-            if (text === 'Generic') {
-                sendGenericMessage(sender);
-                continue
-            } else if (text === 'location') {
-                askForLocation(sender);
-                continue;
-            }
 
-            sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
+            console.log('Received text message: %s', text);
+
+            userScenario[sender].current().setPayload(text);
+            userScenario[sender].next();
+
+            const reply = getCurrentUserReply(sender);
+
+            reply(sender);
+
         } else if (event.message && event.message.attachments) {
             const location = event.message.attachments[0];
 
-            sendTextMessage(sender, "Location in JSON: " + JSON.stringify(location));
+            console.log('Received attachment');
 
+            userScenario[sender].current().setPayload(location);
+            userScenario[sender].next();
+
+            const reply = getCurrentUserReply(sender);
+
+            reply(sender);
+
+        } else if (event.message && event.message.quick_reply) {
+            const payload = event.message.quick_reply.payload;
+
+            console.log('Received quick reply: %s', payload);
+
+            userScenario[sender].current().setPayload(payload);
+            userScenario[sender].next();
+
+            const reply = getCurrentUserReply(sender);
+
+            reply(sender);
         } else if (event.postback && event.postback.payload) {
+            console.log('Received postback: %s', event.postback.payload);
             handlePostBack(event);
         }
     }

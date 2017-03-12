@@ -8,6 +8,10 @@ class ScenarioStep {
     setPayload(payload) {
         this.payload = payload;
     }
+
+    toString() {
+        return `${this.id} - ${JSON.stringify(this.payload)}`;
+    }
 }
 
 class Scenario {
@@ -40,6 +44,10 @@ class Scenario {
     reset() {
         this.index = 0;
     }
+
+    toString() {
+        return this.scenarioSteps.map((step) => step.toString());
+    }
 }
 
 class ScenarioFactory {
@@ -52,7 +60,7 @@ class ScenarioFactory {
             .addStep(new ScenarioStep(MESSAGES.AT_WHICH_TIME_THE_INCIDENT_HAPPENED.id))
             .addStep(new ScenarioStep(MESSAGES.WHERE_DID_THE_INCIDENT_HAPPEN.id))
             .addStep(new ScenarioStep(MESSAGES.KIND_OF_HARASSMENT.id))
-            .addStep(new ScenarioStep(MESSAGES.TYPE_OF_LOCATION.id))
+            .addStep(new ScenarioStep(MESSAGES.TYPE_OF_HARASSMENT_LOCATION.id))
             .addStep(new ScenarioStep(MESSAGES.DID_YOU_GET_SOME_HELP_FROM_OTHERS.id))
             .addStep(new ScenarioStep(MESSAGES.WHAT_IS_HARASSER_AGE.id))
             .addStep(new ScenarioStep(MESSAGES.WHAT_IS_YOUR_DEGREE.id))
