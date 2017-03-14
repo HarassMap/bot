@@ -9,6 +9,8 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const app = express();
 
+const UsersPlugin = require('./src/middlewares/users');
+const TranslationsPlugin = require('./src/middlewares/translations');
 const MESSAGES = require('./src/utils/messages');
 const components = require('./src/components/');
 const { ScenarioFactory } = require('./src/components/scenario');
@@ -16,6 +18,13 @@ const { ScenarioFactory } = require('./src/components/scenario');
 app.set('port', (process.env.PORT || 5000));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
+app.use(UsersPlugin);
+app.use(TranslationsPlugin);
+app.use((req, res, next) => {
+    console.log('Logging----------------');
+    req.getTranslations();
+    next();
+});
 
 app.get('/', function (req, res) {
     res.send('Hello world, I am a chat bot')
@@ -84,8 +93,6 @@ app.post('/webhook/', function (req, res) {
         if (sender === PAGE_ID) {
             continue;
         }
-
-        console.log('Sender ID: %s', sender);
 
         if (event.message && event.message.text) {
             let text = event.message.text;

@@ -13,7 +13,8 @@
     "body-parser": "^1.17.0",
     "ejs": "2.4.1",
     "express": "^4.13.3",
-    "request": "^2.80.0"
+    "request": "^2.80.0",
+    "request-promise": "^4.1.1"
   },
   "repository": {
     "type": "git",

@@ -1,9 +1,10 @@
-const _request = require('request');
+const requestPromise = require('request-promise');
 const token = process.env.FB_PAGE_ACCESS_TOKEN;
 
 module.exports = {
     URLS: {
-        FB_MESSAGES: 'https://graph.facebook.com/v2.6/me/messages'
+        FB_MESSAGES: 'https://graph.facebook.com/v2.6/me/messages',
+        FB_USER_PROFILE: 'https://graph.facebook.com/v2.6'
     },
 
     request(url, options) {
@@ -11,19 +12,18 @@ module.exports = {
             {},
             {
                 url,
-                qs: {access_token: token}
+                json: true
             },
             options
         );
 
-        return _request(requestOptions, function (error, response, body) {
-            console.log('Body:', body);
-            if (error) {
+        requestOptions.qs = requestOptions.qs || {};
+        requestOptions.qs.access_token = token;
+
+        return requestPromise(requestOptions)
+            .catch((error) => {
                 console.log('Error sending messages: ', error);
-            } else if (response.body.error) {
-                console.log('Error: ', response.body.error);
-            }
-        })
+            });
     },
 
     postRequest(url, body) {
@@ -33,8 +33,8 @@ module.exports = {
         });
     },
 
-    getRequest(url) {
-        return this.request(url);
+    getRequest(url, options) {
+        return this.request(url, options);
     },
 
     deleteRequest(url) {
