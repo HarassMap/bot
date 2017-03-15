@@ -1,14 +1,17 @@
+const MESSAGES = require('../utils/messages');
+
 module.exports = (req, res, next) => {
 
-    req.getTranslations = () => {
-        if (req.getUser) {
-            req.getUser()
-                .then(userInfo => {
-                    console.log('Locale -------------:', userInfo['locale']);
-                });
-        } else {
-            console.log('Could not get user info');
+    req.getTranslation = (key) => {
+
+        if (req.userInfo) {
+            const { locale } = req.userInfo;
+
+            console.log('Looking for ----------------:', `message-${locale}`);
+
+            return MESSAGES[key][`message-${locale}`] || 'Fallback -2';
         }
+        return 'Fallback text';
     };
 
     next();

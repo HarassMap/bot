@@ -1,7 +1,7 @@
 const Request = require('../utils/request');
 const MESSAGES = require('../utils/messages');
 
-module.exports = (sender) => {
+module.exports = (request) => {
     const message = {
         attachment: {
             type: 'template',
@@ -11,7 +11,7 @@ module.exports = (sender) => {
                 buttons: [
                     {
                         type: 'postback',
-                        title: MESSAGES.REPORT_HARASS_INCIDENT.message,
+                        title: request.getTranslation(MESSAGES.REPORT_HARASS_INCIDENT.id),
                         payload: MESSAGES.REPORT_HARASS_INCIDENT.id
                     },
                     {
@@ -24,8 +24,11 @@ module.exports = (sender) => {
         }
     };
 
-    return Request.postRequest(Request.URLS.FB_MESSAGES, {
-        recipient: { id: sender },
-        message
-    });
+    return request.getUser()
+        .then((userInfo) => {
+            return Request.postRequest(Request.URLS.FB_MESSAGES, {
+                recipient: {id: userInfo.id},
+                message
+            });
+        });
 };

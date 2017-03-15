@@ -20,11 +20,6 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(UsersPlugin);
 app.use(TranslationsPlugin);
-app.use((req, res, next) => {
-    console.log('Logging----------------');
-    req.getTranslations();
-    next();
-});
 
 app.get('/', function (req, res) {
     res.send('Hello world, I am a chat bot')
@@ -54,7 +49,7 @@ function getCurrentUserReply(senderId) {
     return echo;
 }
 
-function handlePostBack(event) {
+function handlePostBack(request, event) {
     const sender = event.sender.id;
     const payload = event.postback.payload;
 
@@ -66,7 +61,7 @@ function handlePostBack(event) {
 
             const reply = getCurrentUserReply(sender);
 
-            reply(sender);
+            reply(request);
             break;
         }
         case MESSAGES.REPORT_HARASS_INCIDENT.id: {
@@ -74,7 +69,7 @@ function handlePostBack(event) {
 
             const reply = getCurrentUserReply(sender);
 
-            reply(sender);
+            reply(request);
 
             break;
         }
@@ -83,8 +78,8 @@ function handlePostBack(event) {
         }
     }
 }
-app.post('/webhook/', function (req, res) {
-    let messaging_events = req.body.entry[0].messaging;
+app.post('/webhook/', function (request, response) {
+    let messaging_events = request.body.entry[0].messaging;
 
     for (let i = 0; i < messaging_events.length; i++) {
         let event = messaging_events[i];
@@ -104,7 +99,7 @@ app.post('/webhook/', function (req, res) {
 
             const reply = getCurrentUserReply(sender);
 
-            reply(sender);
+            reply(request);
 
         } else if (event.message && event.message.attachments) {
             const location = event.message.attachments[0];
@@ -116,7 +111,7 @@ app.post('/webhook/', function (req, res) {
 
             const reply = getCurrentUserReply(sender);
 
-            reply(sender);
+            reply(request);
 
         } else if (event.message && event.message.quick_reply) {
             const payload = event.message.quick_reply.payload;
@@ -128,13 +123,13 @@ app.post('/webhook/', function (req, res) {
 
             const reply = getCurrentUserReply(sender);
 
-            reply(sender);
+            reply(request);
         } else if (event.postback && event.postback.payload) {
             console.log('Received postback: %s', event.postback.payload);
-            handlePostBack(event);
+            handlePostBack(request, event);
         }
     }
-    res.sendStatus(200);
+    response.sendStatus(200);
 });
 
 function askForLocation(sender) {

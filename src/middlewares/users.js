@@ -18,6 +18,8 @@ module.exports = (req, res, next) => {
             }).then((userInfo) => {
                 userInfo.id = userId;
 
+                req.userInfo = userInfo;
+
                 users.set(userId, userInfo);
                 next();
 
@@ -28,8 +30,6 @@ module.exports = (req, res, next) => {
         }
 
         req.getUser = () => userPromise;
-    } else {
-        console.log(' --------------------------- No messages');
     }
 
     next();

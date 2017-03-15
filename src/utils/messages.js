@@ -9,7 +9,9 @@ module.exports = {
     },
     REPORT_HARASS_INCIDENT: {
         id: 'REPORT_HARASS_INCIDENT',
-        message: 'Report an incident'
+        message: 'Report an incident',
+        'message-en_US': 'Report an incident',
+        'message-ar_AR': 'ابلغ عن حالة تحرش'
     },
     SHOW_HARASS_INCIDENTS: {
         id: 'SHOW_HARASS_INCIDENTS',
