@@ -1,6 +1,6 @@
 'use strict'
 
-const VERIFY_TOKEN = 'catch-me-if-you-can';
+const VERIFY_TOKEN = process.env.FB_VERIFFY_TOKEN;
 const token = process.env.FB_PAGE_ACCESS_TOKEN;
 const PAGE_ID = '1365749950157719';
 

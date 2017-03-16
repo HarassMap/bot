@@ -1,5 +1,6 @@
 const Request = require('../utils/request');
 const users = new Map();
+const PAGE_ID = '1365749950157719';
 
 module.exports = (req, res, next) => {
 
@@ -8,6 +9,11 @@ module.exports = (req, res, next) => {
     if (messagingEvents.length > 0) {
         const sender = messagingEvents[0].sender;
         const userId = sender.id;
+
+        if (userId === PAGE_ID) {
+            return next();
+        }
+
         let userPromise;
 
         if (!users.has(userId)) {
