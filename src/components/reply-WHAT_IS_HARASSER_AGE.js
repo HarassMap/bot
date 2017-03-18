@@ -7,7 +7,7 @@ module.exports = (request) => {
             return Request.postRequest(Request.URLS.FB_MESSAGES, {
                 recipient: {id: userInfo.id},
                 message: {
-                    text: request.getTranslation(MESSAGES.PLEASE_GIVE_US_MORE_DETAILS)
+                    text: request.getTranslation(MESSAGES.WHAT_IS_HARASSER_AGE)
                 }
             });
         });

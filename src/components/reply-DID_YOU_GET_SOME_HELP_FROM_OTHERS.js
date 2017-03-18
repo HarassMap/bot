@@ -3,16 +3,16 @@ const MESSAGES = require('../utils/messages');
 
 module.exports = (request) => {
     const message = {
-        text: MESSAGES.DID_YOU_GET_SOME_HELP_FROM_OTHERS.message,
+        text: request.getTranslation(MESSAGES.DID_YOU_GET_SOME_HELP_FROM_OTHERS),
         quick_replies: [
             {
                 content_type: 'text',
-                title: MESSAGES.YES.message,
+                title: request.getTranslation(MESSAGES.YES),
                 payload: MESSAGES.YES.id
             },
             {
                 content_type: 'text',
-                title: MESSAGES.NO.message,
+                title: request.getTranslation(MESSAGES.NO),
                 payload: MESSAGES.NO.id
             }
         ]

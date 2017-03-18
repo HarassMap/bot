@@ -3,21 +3,21 @@ const MESSAGES = require('../utils/messages');
 
 module.exports = (request) => {
     const message = {
-        text: MESSAGES.KIND_OF_HARASSMENT.message,
+        text: request.getTranslation(MESSAGES.KIND_OF_HARASSMENT),
         quick_replies: [
             {
                 content_type: 'text',
-                title: MESSAGES.FACIAL_EXPRESSION.message,
+                title: request.getTranslation(MESSAGES.FACIAL_EXPRESSION),
                 payload: MESSAGES.FACIAL_EXPRESSION.id
             },
             {
                 content_type: 'text',
-                title: MESSAGES.SEXUAL_INVITES.message,
+                title: request.getTranslation(MESSAGES.SEXUAL_INVITES),
                 payload: MESSAGES.SEXUAL_INVITES.id
             },
             {
                 content_type: 'text',
-                title: MESSAGES.SEXUAL_PHOTOS.message,
+                title: request.getTranslation(MESSAGES.SEXUAL_PHOTOS),
                 payload: MESSAGES.SEXUAL_PHOTOS.id
             }
         ]

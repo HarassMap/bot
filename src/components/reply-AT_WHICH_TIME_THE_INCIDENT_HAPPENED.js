@@ -7,7 +7,7 @@ module.exports = (request) => {
             return Request.postRequest(Request.URLS.FB_MESSAGES, {
                 recipient: { id: userInfo.id },
                 message: {
-                    text: MESSAGES.AT_WHICH_TIME_THE_INCIDENT_HAPPENED.message
+                    text: request.getTranslation(MESSAGES.AT_WHICH_TIME_THE_INCIDENT_HAPPENED)
                 }
             });
         });

@@ -1,5 +1,5 @@
 const request = require('request')
-const token = 'EAAF70dQA8eIBAOpnSfSrg7LMRqigKkX6D3RzxQuMCslCckHtwWhQUZCsFJI7RyCvpUutPQsewsDI5GMZAS5ZBBqZA5em1RjAZBZCmZCw5kHG0VPcnLwQMEi23YLDHc3df1ZBqQyatJ4lPUZCZBzVG6JweitmVMC3AZCad4wPZA8jpIBMpwZDZD';
+const token = process.env.FB_PAGE_ACCESS_TOKEN;
 
 function dispatchRequest(url, data) {
     return request({

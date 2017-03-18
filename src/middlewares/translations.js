@@ -1,17 +1,19 @@
-const MESSAGES = require('../utils/messages');
+const DEFAULT_LOCALE = 'en_US';
 
 module.exports = (req, res, next) => {
 
-    req.getTranslation = (key) => {
+    req.getTranslation = (message) => {
+        let key = DEFAULT_LOCALE;
 
         if (req.userInfo) {
-            const { locale } = req.userInfo;
+            const { locale = DEFAULT_LOCALE } = req.userInfo;
 
-            console.log('Looking for ----------------:', `message-${locale}`);
-
-            return MESSAGES[key][`message-${locale}`] || 'Fallback -2';
+            if (locale !== DEFAULT_LOCALE) {
+                key = `${locale}`;
+            }
         }
-        return 'Fallback text';
+
+        return message[key];
     };
 
     next();

@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 const VERIFY_TOKEN = process.env.FB_VERIFFY_TOKEN;
 const token = process.env.FB_PAGE_ACCESS_TOKEN;
@@ -14,6 +14,7 @@ const TranslationsPlugin = require('./src/middlewares/translations');
 const MESSAGES = require('./src/utils/messages');
 const components = require('./src/components/');
 const { ScenarioFactory } = require('./src/components/scenario');
+const Request = require('./src/utils/request');
 
 app.set('port', (process.env.PORT || 5000));
 app.use(bodyParser.urlencoded({extended: false}));
@@ -33,7 +34,16 @@ app.get('/webhook/', function (req, res) {
     res.send('Error, wrong token');
 });
 
-const echo = (sender) => sendTextMessage(sender, 'Echo');
+const echo = (request) =>
+    request.getUser()
+        .then((userInfo) =>
+            Request.postRequest(Request.URLS.FB_MESSAGES, {
+                recipient: {id: userInfo.id},
+                message: {
+                    text: 'Echo'
+                }
+            })
+        );
 
 const userScenario = {};
 
@@ -45,8 +55,10 @@ function getCurrentUserReply(senderId) {
     }
 
     console.log(userScenario[senderId].toString());
+    userScenario[senderId].reset();
+    userScenario[senderId].next();
 
-    return echo;
+    return getCurrentUserReply(senderId);
 }
 
 function handlePostBack(request, event) {
@@ -132,102 +144,7 @@ app.post('/webhook/', function (request, response) {
     response.sendStatus(200);
 });
 
-function askForLocation(sender) {
-    let locationReply = {
-        "text":"Please share your location:",
-        "quick_replies":[
-            {
-                "content_type":"location",
-            }
-        ]
-    };
-
-    request({
-        url: 'https://graph.facebook.com/v2.6/me/messages',
-        qs: {access_token:token},
-        method: 'POST',
-        json: {
-            recipient: {id:sender},
-            message: locationReply,
-        }
-    }, function(error, response, body) {
-        if (error) {
-            console.log('Error sending messages: ', error)
-        } else if (response.body.error) {
-            console.log('Error: ', response.body.error)
-        }
-    })
-}
-
-function sendGenericMessage(sender) {
-    let messageData = {
-        "attachment": {
-            "type": "template",
-            "payload": {
-                "template_type": "generic",
-                "elements": [{
-                    "title": "First card",
-                    "subtitle": "Element #1 of an hscroll",
-                    "image_url": "http://maxpixel.freegreatpicture.com/static/photo/1x/Nature-Apes-Monkeys-Animals-Cute-Small-Babies-768641.jpg",
-                    "buttons": [{
-                        "type": "web_url",
-                        "url": "https://www.zalando.de",
-                        "title": "Zalando"
-                    }, {
-                        "type": "postback",
-                        "title": "Postback",
-                        "payload": "Payload for first element in a generic bubble",
-                    }],
-                }, {
-                    "title": "Second card",
-                    "subtitle": "Element #2 of an hscroll",
-                    "image_url": "https://cdn.pixabay.com/photo/2013/10/17/20/59/horse-197199_960_720.jpg",
-                    "buttons": [{
-                        "type": "postback",
-                        "title": "Postback",
-                        "payload": "Payload for second element in a generic bubble",
-                    }],
-                }]
-            }
-        }
-    }
-    request({
-        url: 'https://graph.facebook.com/v2.6/me/messages',
-        qs: {access_token:token},
-        method: 'POST',
-        json: {
-            recipient: {id:sender},
-            message: messageData,
-        }
-    }, function(error, response, body) {
-        if (error) {
-            console.log('Error sending messages: ', error)
-        } else if (response.body.error) {
-            console.log('Error: ', response.body.error)
-        }
-    })
-}
-
-function sendTextMessage(sender, text) {
-    let messageData = { text:text }
-    request({
-        url: 'https://graph.facebook.com/v2.6/me/messages',
-        qs: {access_token:token},
-        method: 'POST',
-        json: {
-            recipient: {id:sender},
-            message: messageData,
-        }
-    }, function(error, response, body) {
-        if (error) {
-            console.log('Error sending messages: ', error)
-        } else if (response.body.error) {
-            console.log('Error: ', response.body.error)
-        }
-    })
-}
-
 // Spin up the server
 app.listen(app.get('port'), function() {
     console.log('running on port', app.get('port'))
-})
+});

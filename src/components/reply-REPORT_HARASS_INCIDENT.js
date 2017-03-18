@@ -7,16 +7,16 @@ module.exports = (request) => {
             type: 'template',
             payload: {
                 template_type: 'button',
-                text: MESSAGES.WELCOME_TO_HARASS_MAP.message,
+                text: request.getTranslation(MESSAGES.WELCOME_TO_HARASS_MAP),
                 buttons: [
                     {
                         type: 'postback',
-                        title: request.getTranslation(MESSAGES.REPORT_HARASS_INCIDENT.id),
+                        title: request.getTranslation(MESSAGES.REPORT_HARASS_INCIDENT),
                         payload: MESSAGES.REPORT_HARASS_INCIDENT.id
                     },
                     {
                         type: 'postback',
-                        title: MESSAGES.SHOW_HARASS_INCIDENTS.message,
+                        title: request.getTranslation(MESSAGES.SHOW_HARASS_INCIDENTS),
                         payload: MESSAGES.SHOW_HARASS_INCIDENTS.id
                     }
                 ]

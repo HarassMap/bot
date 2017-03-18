@@ -7,7 +7,7 @@ module.exports = (request) => {
             Request.postRequest(Request.URLS.FB_MESSAGES, {
                 recipient: {id: userInfo.id},
                 message: {
-                    text: MESSAGES.WHERE_DID_THE_INCIDENT_HAPPEN.message,
+                    text: request.getTranslation(MESSAGES.WHERE_DID_THE_INCIDENT_HAPPEN),
                     quick_replies: [{'content_type': 'location'}]
                 }
             });
